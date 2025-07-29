@@ -18,7 +18,7 @@ dependencies:
   logger: ^2.0.2+1
 
   #Authentication
-  firebase_auth: ^5.7.0
+  firebase_auth: ^6.0.0
   
   # Package info
   package_info_plus: ^8.0.0

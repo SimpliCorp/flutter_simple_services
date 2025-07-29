@@ -23,11 +23,6 @@ class _InitializationStatusWidgetState
   @override
   void initState() {
     super.initState();
-    // Bắt đầu khởi tạo nếu chưa bắt đầu
-    if (SimpleServicesManager.instance.currentStatus ==
-        InitializationStatus.notStarted) {
-      SimpleServicesManager.instance.initialize();
-    }
   }
 
   String _getStatusMessage(InitializationStatus status) {

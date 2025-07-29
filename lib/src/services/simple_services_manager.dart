@@ -31,7 +31,7 @@ class SimpleServicesManager {
     return _instance!;
   }
 
-  var bundleId = "";
+  var bundle = "";
   var namespace = "l7mobile";
   var userId = "";
   var transport = "firebase";
@@ -72,8 +72,8 @@ class SimpleServicesManager {
       // Initialization logic for SimpleServicesManager
       // This could include setting up services, configurations, etc.
       final packageInfo = await PackageInfo.fromPlatform();
-      bundleId = packageInfo.packageName;
-      logInfo("Bundle ID: $bundleId");
+      bundle = packageInfo.packageName;
+      logInfo("Bundle ID: $bundle");
 
       _updateStatus(InitializationStatus.initializingFirebaseAuth);
 
@@ -134,6 +134,10 @@ class SimpleServicesManager {
     );
   }
 
+  Future<StatusesModel> getStatusesNotify() {
+    return AppRepository().getStatusesNotify(userId, namespace, bundle);
+  }
+
   // Campaign functions
   Future<CampaignsResponse> getListCampaigns(int offset, int limit) {
     return AppRepository().getListCampaigns(
@@ -141,7 +145,7 @@ class SimpleServicesManager {
       offset,
       limit,
       namespace,
-      bundleId,
+      bundle,
     );
   }
 
@@ -178,7 +182,7 @@ class SimpleServicesManager {
       userId,
       "1", //Fixed function by default
       namespace,
-      bundleId,
+      bundle,
     );
   }
 

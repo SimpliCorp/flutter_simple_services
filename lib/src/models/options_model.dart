@@ -17,7 +17,7 @@ class OptionsModel {
   static OptionsModel defaultOptions() {
     return OptionsModel(
       namespace: "l7mobile",
-      bundle: SimpleServicesManager.instance.bundleId,
+      bundle: SimpleServicesManager.instance.bundle,
     );
   }
 

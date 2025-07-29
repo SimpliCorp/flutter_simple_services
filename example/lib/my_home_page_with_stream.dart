@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:ffi';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:example/log.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_badge/flutter_native_badge.dart';
 import 'package:flutter_simple_services/flutter_simple_services.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -30,12 +32,6 @@ class _MyHomePageWithStreamState extends State<MyHomePageWithStream> {
   @override
   void initState() {
     super.initState();
-
-    // Bắt đầu khởi tạo nếu chưa bắt đầu
-    if (SimpleServicesManager.instance.currentStatus ==
-        InitializationStatus.notStarted) {
-      SimpleServicesManager.instance.initialize();
-    }
 
     // Lắng nghe status stream
     _statusSubscription = SimpleServicesManager.instance.statusStream.listen(
@@ -310,6 +306,23 @@ class _MyHomePageWithStreamState extends State<MyHomePageWithStream> {
       }
     } catch (e) {
       logError('Failed to get free status: $e');
+    }
+
+    try {
+      var response = await SimpleServicesManager.instance.getStatusesNotify();
+      var unreadCount = int.parse((response.unread ?? "0"));
+      unreadCount > 0
+          ? logSuccess('You have $unreadCount unread notifications')
+          : logInfo('No unread notifications');
+
+      bool isSupported = await FlutterNativeBadge.isSupported();
+      if (isSupported) {
+        FlutterNativeBadge.setBadgeCount(unreadCount);
+      } else {
+        logInfo('FlutterNativeBadge is not supported on this device');
+      }
+    } catch (error) {
+      logError(error.toString());
     }
   }
 
