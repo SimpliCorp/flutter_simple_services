@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "192449962480",
+    "project_id": "l7mobile-apps",
+    "storage_bucket": "l7mobile-apps.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:192449962480:android:ca9b7d6c90b561c2e43d35",
+        "android_client_info": {
+          "package_name": "com.l7mobile.aimate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "192449962480-4uk8i2kg6kccar4c9h3s08h6faicita0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.l7mobile.aimate",
+            "certificate_hash": "398ddc06176ead939aca4c9a732a71716e3b2871"
+          }
+        },
+        {
+          "client_id": "192449962480-673i40hi5puk8f3rp7pjpfa6ntnt6tlq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCI2DE1eigL7N7VXXAd7MUpC0toT6RAQvs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "192449962480-673i40hi5puk8f3rp7pjpfa6ntnt6tlq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "192449962480-6lbi4ql5fnnb89cfhl46rs1h6cs8qa0j.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.simpleapp.simplemusic",
+                "app_store_id": "6746431093"
+              }
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-4191574836195894~6535843590"
+    }
+  ],
+  "configuration_version": "1"
+}

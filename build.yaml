@@ -1,0 +1,30 @@
+targets:
+  $default:
+    builders:
+      json_serializable:
+        enabled: true
+        generate_for:
+          - lib/src/models/*.dart
+      retrofit_generator:
+        enabled: true
+        generate_for:
+          - lib/src/services/api_service.dart
+
+builders:
+  json_serializable:
+    target: ":json_serializable"
+    import: "package:json_serializable/builder.dart"
+    builder_factories: ["jsonSerializable"]
+    build_extensions: {".dart": [".g.dart"]}
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
+
+  retrofit_generator:
+    target: ":retrofit_generator"
+    import: "package:retrofit_generator/retrofit_generator.dart"
+    builder_factories: ["retrofitBuilder"]
+    build_extensions: {".dart": [".g.dart"]}
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
