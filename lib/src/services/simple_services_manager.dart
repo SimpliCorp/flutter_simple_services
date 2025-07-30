@@ -129,7 +129,7 @@ class SimpleServicesManager {
       address,
       userId,
       OptionsModel.defaultOptions().toJson(),
-      Platform.isIOS ? "IOS" : "Android",
+      Platform.isIOS ? "IOS" : "ANDROID",
     );
   }
 
