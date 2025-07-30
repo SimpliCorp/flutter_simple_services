@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_simple_services/src/log.dart';
 import 'package:flutter_simple_services/src/models/models.dart';
 import 'package:flutter_simple_services/src/repository/api_repository.dart';
@@ -121,6 +123,16 @@ class SimpleServicesManager {
     }
   }
 
+  Future<ResponseModel> registerDeviceToken(String address) {
+    return AppRepository().registerDeviceToken(
+      transport,
+      address,
+      userId,
+      OptionsModel.defaultOptions().toJson(),
+      Platform.isIOS ? "IOS" : "Android",
+    );
+  }
+
   Future<TopicResponse> getListTopics() {
     return AppRepository().getListTopics(userId, 0, 99, namespace);
   }
@@ -131,6 +143,30 @@ class SimpleServicesManager {
       offset,
       limit,
       namespace,
+    );
+  }
+
+  Future<NotificationResponse> readNotifications(List<String> ids) {
+    return AppRepository().readNotifications(ids);
+  }
+
+  Future<ResponseModel> deleteNotifications(List<String> ids) {
+    return AppRepository().deleteNotifications(ids);
+  }
+
+  Future<ResponseModel> deleteNotificationsAll() {
+    return AppRepository().deleteNotificationsAll();
+  }
+
+  Future<SettingsNotifyResponse> getSettingsNotify() {
+    return AppRepository().getSettingsNotify(userId, namespace);
+  }
+
+  Future<ResponseModel> setSettingsNotify(bool enabled) {
+    return AppRepository().setSettingsNotify(
+      userId,
+      enabled,
+      OptionsModel.defaultOptions().toJson(),
     );
   }
 

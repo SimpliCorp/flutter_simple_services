@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter_simple_services/flutter_simple_services.dart';
 import 'package:flutter_simple_services/src/services/api_config.dart';
 import '../requests/requests.dart';
-import '../responses/responses.dart';
 
 class AppRepository {
   AppRepository._internal() {
