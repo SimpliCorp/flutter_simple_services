@@ -1,3 +1,5 @@
+// ignore_for_file: overridden_fields, annotate_overrides
+
 import 'package:dio/dio.dart';
 import 'package:flutter_simple_services/src/responses/error_response.dart';
 import 'package:logger/logger.dart';
@@ -53,13 +55,27 @@ class DioClient {
           _logger.e('Error message: ${error.message}');
           _logger.e('Error data: ${error.response?.data}');
 
+          if (error.response?.statusCode == 401) {
+            // globalEvent.fire(TokenExpiredEvent());
+            return handler.next(error);
+          }
+
           if ((error.response?.statusCode ?? 500) <= 400) {
             // Handle unauthorized error
             ErrorResponse errorModel = errorResponseFromJson(
               error.response?.data ?? '{}',
             );
 
-            if (errorModel.id != null && errorModel.detail != null) {}
+            if (errorModel.id != null) {
+              CustomDioError customError = CustomDioError(
+                requestOptions: error.requestOptions,
+                response: error.response,
+                type: error.type,
+                error: errorModel,
+              );
+              handler.next(customError);
+              return;
+            }
           }
 
           handler.next(error);
@@ -120,5 +136,29 @@ class DioClient {
         (interceptor) => interceptor is LogInterceptor,
       );
     }
+  }
+}
+
+class CustomDioError extends DioException {
+  RequestOptions requestOptions;
+  Response? response;
+  DioExceptionType type;
+  ErrorResponse? error;
+
+  CustomDioError({
+    required this.requestOptions,
+    this.response,
+    required this.type,
+    this.error,
+  }) : super(
+         requestOptions: requestOptions,
+         response: response,
+         type: type,
+         error: error,
+       );
+
+  @override
+  String toString() {
+    return message ?? error.toString();
   }
 }

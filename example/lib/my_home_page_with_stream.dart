@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import 'package:dio/dio.dart';
 import 'package:example/log.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -254,10 +255,6 @@ class _MyHomePageWithStreamState extends State<MyHomePageWithStream> {
               : const Icon(Icons.campaign),
       onTap: () {
         // Handle campaign tap
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Tapped on ${campaign.name}')));
-
         switch (campaign.mediaSource) {
           case "WATCH_ADS":
             // Logic for watching ads
@@ -304,8 +301,38 @@ class _MyHomePageWithStreamState extends State<MyHomePageWithStream> {
           freeStatus = "Free status until: ${response.expiredAt}";
         });
       }
+    } on CustomDioError catch (dioError) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(dioError.error?.detail ?? 'An error occurred'),
+            backgroundColor:
+                _isNetworkError(dioError) ? Colors.orange : Colors.red,
+          ),
+        );
+      }
+    } on DioException catch (dioError) {
+      final errorMessage = _getErrorMessage(dioError);
+      logError('DioException in getActivationFunctions: $errorMessage');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Network Error: $errorMessage'),
+            backgroundColor:
+                _isNetworkError(dioError) ? Colors.orange : Colors.red,
+          ),
+        );
+      }
     } catch (e) {
-      logError('Failed to get free status: $e');
+      logError('Failed to get activation functions: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Unexpected Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
 
     try {
@@ -321,21 +348,87 @@ class _MyHomePageWithStreamState extends State<MyHomePageWithStream> {
       } else {
         logInfo('FlutterNativeBadge is not supported on this device');
       }
+    } on DioException catch (dioError) {
+      logError(
+        'DioException in getStatusesNotify: ${_getErrorMessage(dioError)}',
+      );
     } catch (error) {
-      logError(error.toString());
+      logError('Failed to get notification status: $error');
     }
+  }
+
+  String _getErrorMessage(DioException error) {
+    // Try to parse error from server response
+    try {
+      if (error.response?.data != null) {
+        // Simple fallback without parsing
+        if (error.response?.data is Map) {
+          final data = error.response?.data as Map<String, dynamic>;
+          if (data.containsKey('detail')) {
+            return data['detail'].toString();
+          }
+          if (data.containsKey('message')) {
+            return data['message'].toString();
+          }
+        }
+      }
+    } catch (e) {
+      // Ignore parsing errors
+    }
+
+    // Fallback to default messages
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+        return 'Connection timeout. Please check your internet connection.';
+      case DioExceptionType.sendTimeout:
+        return 'Send timeout. Please try again.';
+      case DioExceptionType.receiveTimeout:
+        return 'Receive timeout. Please try again.';
+      case DioExceptionType.connectionError:
+        return 'Connection error. Please check your internet connection.';
+      case DioExceptionType.cancel:
+        return 'Request was cancelled.';
+      case DioExceptionType.badResponse:
+        switch (error.response?.statusCode) {
+          case 401:
+            return 'Unauthorized access. Please login again.';
+          case 403:
+            return 'Access forbidden.';
+          case 404:
+            return 'Resource not found.';
+          case 500:
+            return 'Internal server error. Please try again later.';
+          default:
+            return 'Server error occurred.';
+        }
+      default:
+        return error.message ?? 'An unexpected error occurred';
+    }
+  }
+
+  bool _isNetworkError(DioException error) {
+    return error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.connectionError ||
+        error.type == DioExceptionType.sendTimeout ||
+        error.type == DioExceptionType.receiveTimeout;
+  }
+
+  // Helper method để check network error cho CustomDioError
+  bool _isCustomNetworkError(CustomDioError error) {
+    return error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.connectionError ||
+        error.type == DioExceptionType.sendTimeout ||
+        error.type == DioExceptionType.receiveTimeout;
   }
 
   Future<void> _viewRewardAds(CampaignModel campaign) async {
     // ios test ca-app-pub-3940256099942544/1712485313
     var adsReward = AdmobReward(rewardId: AdmobConfig().rewardId());
-    var earned = false;
     // Success case
     try {
       await adsReward.loadRewardedAdAsync();
       print('Ad loaded successfully!');
       adsReward.onRewardEarned = () {
-        earned = true;
         logSuccess('Reward earned!');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -345,12 +438,14 @@ class _MyHomePageWithStreamState extends State<MyHomePageWithStream> {
         );
       };
       adsReward.onAdDismissed = () async {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Ad dismissed'),
-            backgroundColor: Colors.blue,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Ad dismissed'),
+              backgroundColor: Colors.blue,
+            ),
+          );
+        }
 
         logSuccess('Ad dismissed Call api verify reward');
 
@@ -360,8 +455,47 @@ class _MyHomePageWithStreamState extends State<MyHomePageWithStream> {
             null,
           );
           logSuccess('Reward verified successfully');
+
+          // Refresh activation functions after successful verification
+          await _getActivationFunctions();
+        } on CustomDioError catch (customError) {
+          logError(
+            'CustomDioError in verifyCampaign: ${customError.error?.detail ?? customError.message}',
+          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Server Error verifying reward: ${customError.error?.detail ?? customError.message ?? 'An error occurred'}',
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        } on DioException catch (dioError) {
+          final errorMessage = _getErrorMessage(dioError);
+          logError('DioException in verifyCampaign: $errorMessage');
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error verifying reward: $errorMessage'),
+                backgroundColor:
+                    _isNetworkError(dioError) ? Colors.orange : Colors.red,
+              ),
+            );
+          }
         } catch (e) {
           logError('Error verifying reward: $e');
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Unexpected error verifying reward: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         }
       };
       adsReward.showRewardedAd();
@@ -377,18 +511,61 @@ class _MyHomePageWithStreamState extends State<MyHomePageWithStream> {
   }
 
   Future<void> _getInviteLink(CampaignModel campaign) async {
-    var deeplink = await SimpleServicesManager.instance.getInviteLinkCampaign(
-      campaign.id ?? "",
-    );
-    if (deeplink.url.isNotEmpty) {
-      SharePlus.instance.share(ShareParams(uri: Uri.parse(deeplink.url)));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to get invite link'),
-          backgroundColor: Colors.red,
-        ),
+    try {
+      var deeplink = await SimpleServicesManager.instance.getInviteLinkCampaign(
+        campaign.id ?? "",
       );
+
+      if (deeplink.url.isNotEmpty) {
+        SharePlus.instance.share(ShareParams(uri: Uri.parse(deeplink.url)));
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No invite link available'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+    } on CustomDioError catch (customError) {
+      logError(
+        'CustomDioError in getInviteLinkCampaign: ${customError.error?.detail ?? customError.message}',
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Server Error: ${customError.error?.detail ?? customError.message ?? 'An error occurred'}',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } on DioException catch (dioError) {
+      final errorMessage = _getErrorMessage(dioError);
+      logError('DioException in getInviteLinkCampaign: $errorMessage');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to get invite link: $errorMessage'),
+            backgroundColor:
+                _isNetworkError(dioError) ? Colors.orange : Colors.red,
+          ),
+        );
+      }
+    } catch (error) {
+      logError('Failed to get invite link: $error');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Unexpected error getting invite link: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -433,27 +610,65 @@ class _MyHomePageWithStreamState extends State<MyHomePageWithStream> {
     );
   }
 
-  void _verifyRedeemCode(CampaignModel campaign, String code) {
+  Future<void> _verifyRedeemCode(CampaignModel campaign, String code) async {
     print("Redeem code: $code for campaign: ${campaign.name}");
-    SimpleServicesManager.instance
-        .useRedeemCode(code)
-        .then((redeemUseModel) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Redeem code used successfully: ${redeemUseModel.message}',
-              ),
-              backgroundColor: Colors.green,
+
+    try {
+      final redeemUseModel = await SimpleServicesManager.instance.useRedeemCode(
+        code,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Redeem code used successfully: ${redeemUseModel.message}',
             ),
-          );
-        })
-        .catchError((error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error using redeem code: $error'),
-              backgroundColor: Colors.red,
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+
+      // Refresh activation functions after successful redeem
+      await _getActivationFunctions();
+    } on CustomDioError catch (customError) {
+      logError(
+        'CustomDioError in useRedeemCode: ${customError.error?.detail ?? customError.message}',
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Server Error: ${customError.error?.detail ?? customError.message ?? 'An error occurred'}',
             ),
-          );
-        });
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } on DioException catch (dioError) {
+      final errorMessage = _getErrorMessage(dioError);
+      logError('DioException in useRedeemCode: $errorMessage');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error using redeem code: $errorMessage'),
+            backgroundColor:
+                _isNetworkError(dioError) ? Colors.orange : Colors.red,
+          ),
+        );
+      }
+    } catch (error) {
+      logError('Failed to use redeem code: $error');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Unexpected error using redeem code: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }
