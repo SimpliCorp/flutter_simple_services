@@ -36,7 +36,7 @@ class SimpleServicesManager {
   var bundle = "";
   var namespace = "l7mobile";
   var userId = "";
-  var transport = "firebase";
+  var transport = "FIREBASE";
   var accessToken = "";
 
   // Biến để theo dõi trạng thái khởi tạo
