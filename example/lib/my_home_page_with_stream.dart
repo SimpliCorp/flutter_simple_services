@@ -23,7 +23,7 @@ class MyHomePageWithStream extends StatefulWidget {
 
 class _MyHomePageWithStreamState extends State<MyHomePageWithStream> {
   List<CampaignModel> listCampaigns = [];
-  StreamSubscription<InitializationStatus>? _statusSubscription;
+  // StreamSubscription<InitializationStatus>? _statusSubscription;
 
   TextEditingController controller = TextEditingController();
 
@@ -35,39 +35,39 @@ class _MyHomePageWithStreamState extends State<MyHomePageWithStream> {
     super.initState();
 
     // Lắng nghe status stream
-    _statusSubscription = SimpleServicesManager.instance.statusStream.listen(
-      (status) {
-        if (mounted) {
-          switch (status) {
-            case InitializationStatus.completed:
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('✅ User is ready!'),
-                  backgroundColor: Colors.green,
-                  duration: Duration(seconds: 2),
-                ),
-              );
-              // Tự động load campaigns khi ready
-              getListCampaigns();
-              break;
-            case InitializationStatus.failed:
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('❌ Initialization failed'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-              break;
-            default:
-              // Log các trạng thái khác
-              print('Status: ${status.name}');
-          }
-        }
-      },
-      onError: (error) {
-        print('Status stream error: $error');
-      },
-    );
+    // _statusSubscription = SimpleServicesManager.instance.statusStream.listen(
+    //   (status) {
+    //     if (mounted) {
+    //       switch (status) {
+    //         case InitializationStatus.completed:
+    //           ScaffoldMessenger.of(context).showSnackBar(
+    //             const SnackBar(
+    //               content: Text('✅ User is ready!'),
+    //               backgroundColor: Colors.green,
+    //               duration: Duration(seconds: 2),
+    //             ),
+    //           );
+    //           // Tự động load campaigns khi ready
+    //           getListCampaigns();
+    //           break;
+    //         case InitializationStatus.failed:
+    //           ScaffoldMessenger.of(context).showSnackBar(
+    //             const SnackBar(
+    //               content: Text('❌ Initialization failed'),
+    //               backgroundColor: Colors.red,
+    //             ),
+    //           );
+    //           break;
+    //         default:
+    //           // Log các trạng thái khác
+    //           print('Status: ${status.name}');
+    //       }
+    //     }
+    //   },
+    //   onError: (error) {
+    //     print('Status stream error: $error');
+    //   },
+    // );
 
     // WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((_) async {
     //   final status =
@@ -80,21 +80,21 @@ class _MyHomePageWithStreamState extends State<MyHomePageWithStream> {
   @override
   void dispose() {
     // Cancel stream subscription
-    _statusSubscription?.cancel();
+    // _statusSubscription?.cancel();
     controller.dispose();
     super.dispose();
   }
 
   Future<void> getListCampaigns() async {
-    if (!SimpleServicesManager.instance.isUserReady) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please wait for initialization to complete'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
+    // if (!SimpleServicesManager.instance.isUserReady) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(
+    //       content: Text('Please wait for initialization to complete'),
+    //       backgroundColor: Colors.orange,
+    //     ),
+    //   );
+    //   return;
+    // }
 
     try {
       CampaignsResponse response = await SimpleServicesManager.instance
@@ -124,119 +124,120 @@ class _MyHomePageWithStreamState extends State<MyHomePageWithStream> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _getActivationFunctions,
-            tooltip: 'Refresh Campaigns',
-          ),
-        ],
-      ),
-      body: StreamBuilder<InitializationStatus>(
-        stream: SimpleServicesManager.instance.statusStream,
-        initialData: SimpleServicesManager.instance.currentStatus,
-        builder: (context, snapshot) {
-          final status = snapshot.data ?? InitializationStatus.notStarted;
+    return Container();
+    // return Scaffold(
+    //   appBar: AppBar(
+    //     backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+    //     title: Text(widget.title),
+    //     actions: [
+    //       IconButton(
+    //         icon: const Icon(Icons.refresh),
+    //         onPressed: _getActivationFunctions,
+    //         tooltip: 'Refresh Campaigns',
+    //       ),
+    //     ],
+    //   ),
+    //   body: StreamBuilder<InitializationStatus>(
+    //     stream: SimpleServicesManager.instance.statusStream,
+    //     initialData: SimpleServicesManager.instance.currentStatus,
+    //     builder: (context, snapshot) {
+    //       final status = snapshot.data ?? InitializationStatus.notStarted;
 
-          return Column(
-            children: [
-              // Status indicator using StreamBuilder
-              Container(
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color:
-                      status == InitializationStatus.completed
-                          ? Colors.green.withOpacity(0.1)
-                          : status == InitializationStatus.failed
-                          ? Colors.red.withOpacity(0.1)
-                          : Colors.orange.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color:
-                        status == InitializationStatus.completed
-                            ? Colors.green
-                            : status == InitializationStatus.failed
-                            ? Colors.red
-                            : Colors.orange,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      status == InitializationStatus.completed
-                          ? Icons.check_circle
-                          : status == InitializationStatus.failed
-                          ? Icons.error
-                          : Icons.hourglass_empty,
-                      color:
-                          status == InitializationStatus.completed
-                              ? Colors.green
-                              : status == InitializationStatus.failed
-                              ? Colors.red
-                              : Colors.orange,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Status: ${status.name}',
-                      style: TextStyle(
-                        color:
-                            status == InitializationStatus.completed
-                                ? Colors.green[700]
-                                : status == InitializationStatus.failed
-                                ? Colors.red[700]
-                                : Colors.orange[700],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.all(18.0),
-                child: Text(
-                  'How to remove Ads:',
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: listCampaigns.length,
-                  itemBuilder: (context, index) {
-                    final campaign = listCampaigns[index];
-                    return _campaignItem(campaign);
-                  },
-                ),
-              ),
-              if (freeStatus.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Center(
-                    child: Text(
-                      freeStatus,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: isFreeAds ? Colors.green : Colors.red,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: getListCampaigns,
-        tooltip: 'Campaigns',
-        child: const Icon(Icons.add),
-      ),
-    );
+    //       return Column(
+    //         children: [
+    //           // Status indicator using StreamBuilder
+    //           Container(
+    //             padding: const EdgeInsets.all(12),
+    //             margin: const EdgeInsets.all(8),
+    //             decoration: BoxDecoration(
+    //               color:
+    //                   status == InitializationStatus.completed
+    //                       ? Colors.green.withOpacity(0.1)
+    //                       : status == InitializationStatus.failed
+    //                       ? Colors.red.withOpacity(0.1)
+    //                       : Colors.orange.withOpacity(0.1),
+    //               borderRadius: BorderRadius.circular(8),
+    //               border: Border.all(
+    //                 color:
+    //                     status == InitializationStatus.completed
+    //                         ? Colors.green
+    //                         : status == InitializationStatus.failed
+    //                         ? Colors.red
+    //                         : Colors.orange,
+    //               ),
+    //             ),
+    //             child: Row(
+    //               mainAxisSize: MainAxisSize.min,
+    //               children: [
+    //                 Icon(
+    //                   status == InitializationStatus.completed
+    //                       ? Icons.check_circle
+    //                       : status == InitializationStatus.failed
+    //                       ? Icons.error
+    //                       : Icons.hourglass_empty,
+    //                   color:
+    //                       status == InitializationStatus.completed
+    //                           ? Colors.green
+    //                           : status == InitializationStatus.failed
+    //                           ? Colors.red
+    //                           : Colors.orange,
+    //                   size: 20,
+    //                 ),
+    //                 const SizedBox(width: 8),
+    //                 Text(
+    //                   'Status: ${status.name}',
+    //                   style: TextStyle(
+    //                     color:
+    //                         status == InitializationStatus.completed
+    //                             ? Colors.green[700]
+    //                             : status == InitializationStatus.failed
+    //                             ? Colors.red[700]
+    //                             : Colors.orange[700],
+    //                     fontWeight: FontWeight.w500,
+    //                   ),
+    //                 ),
+    //               ],
+    //             ),
+    //           ),
+    //           const Padding(
+    //             padding: EdgeInsets.all(18.0),
+    //             child: Text(
+    //               'How to remove Ads:',
+    //               style: TextStyle(fontSize: 20),
+    //             ),
+    //           ),
+    //           Expanded(
+    //             child: ListView.builder(
+    //               itemCount: listCampaigns.length,
+    //               itemBuilder: (context, index) {
+    //                 final campaign = listCampaigns[index];
+    //                 return _campaignItem(campaign);
+    //               },
+    //             ),
+    //           ),
+    //           if (freeStatus.isNotEmpty)
+    //             Padding(
+    //               padding: const EdgeInsets.all(8.0),
+    //               child: Center(
+    //                 child: Text(
+    //                   freeStatus,
+    //                   style: TextStyle(
+    //                     fontSize: 16,
+    //                     color: isFreeAds ? Colors.green : Colors.red,
+    //                   ),
+    //                 ),
+    //               ),
+    //             ),
+    //         ],
+    //       );
+    //     },
+    //   ),
+    //   floatingActionButton: FloatingActionButton(
+    //     onPressed: getListCampaigns,
+    //     tooltip: 'Campaigns',
+    //     child: const Icon(Icons.add),
+    //   ),
+    // );
   }
 
   Widget _campaignItem(CampaignModel campaign) {

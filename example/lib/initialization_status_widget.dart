@@ -25,65 +25,66 @@ class _InitializationStatusWidgetState
     super.initState();
   }
 
-  String _getStatusMessage(InitializationStatus status) {
-    switch (status) {
-      case InitializationStatus.notStarted:
-        return 'Preparing...';
-      case InitializationStatus.initializingPackageInfo:
-        return 'Getting app information...';
-      case InitializationStatus.initializingFirebaseAuth:
-        return 'Initializing Firebase Auth...';
-      case InitializationStatus.authenticatingUser:
-        return 'Authenticating user...';
-      case InitializationStatus.gettingAccessToken:
-        return 'Getting access token...';
-      case InitializationStatus.completed:
-        return 'Ready!';
-      case InitializationStatus.failed:
-        return 'Initialization failed';
-    }
-  }
+  // String _getStatusMessage(InitializationStatus status) {
+  //   switch (status) {
+  //     case InitializationStatus.notStarted:
+  //       return 'Preparing...';
+  //     case InitializationStatus.initializingPackageInfo:
+  //       return 'Getting app information...';
+  //     case InitializationStatus.initializingFirebaseAuth:
+  //       return 'Initializing Firebase Auth...';
+  //     case InitializationStatus.authenticatingUser:
+  //       return 'Authenticating user...';
+  //     case InitializationStatus.gettingAccessToken:
+  //       return 'Getting access token...';
+  //     case InitializationStatus.completed:
+  //       return 'Ready!';
+  //     case InitializationStatus.failed:
+  //       return 'Initialization failed';
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<InitializationStatus>(
-      valueListenable: SimpleServicesManager.instance.initializationStatus,
-      builder: (context, status, child) {
-        if (status == InitializationStatus.completed) {
-          return widget.child;
-        }
+    return Container();
+    // return ValueListenableBuilder<InitializationStatus>(
+    //   valueListenable: SimpleServicesManager.instance.initializationStatus,
+    //   builder: (context, status, child) {
+    //     if (status == InitializationStatus.completed) {
+    //       return widget.child;
+    //     }
 
-        if (status == InitializationStatus.failed) {
-          return widget.errorWidget ?? _buildErrorWidget();
-        }
+    //     if (status == InitializationStatus.failed) {
+    //       return widget.errorWidget ?? _buildErrorWidget();
+    //     }
 
-        return widget.loadingWidget ?? _buildLoadingWidget(status);
-      },
-    );
+    //     return widget.loadingWidget ?? _buildLoadingWidget(status);
+    //   },
+    // );
   }
 
-  Widget _buildLoadingWidget(InitializationStatus status) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: 20),
-            Text(
-              _getStatusMessage(status),
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Please wait...',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildLoadingWidget(InitializationStatus status) {
+  //   return Scaffold(
+  //     body: Center(
+  //       child: Column(
+  //         mainAxisAlignment: MainAxisAlignment.center,
+  //         children: [
+  //           const CircularProgressIndicator(),
+  //           const SizedBox(height: 20),
+  //           Text(
+  //             _getStatusMessage(status),
+  //             style: const TextStyle(fontSize: 16),
+  //           ),
+  //           const SizedBox(height: 10),
+  //           Text(
+  //             'Please wait...',
+  //             style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildErrorWidget() {
     return Scaffold(

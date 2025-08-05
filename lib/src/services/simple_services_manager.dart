@@ -13,16 +13,6 @@ import '../requests/requests.dart';
 import '../responses/responses.dart';
 import 'api_config.dart';
 
-enum InitializationStatus {
-  notStarted,
-  initializingPackageInfo,
-  initializingFirebaseAuth,
-  authenticatingUser,
-  gettingAccessToken,
-  completed,
-  failed,
-}
-
 class SimpleServicesManager {
   static SimpleServicesManager? _instance;
 
@@ -39,88 +29,43 @@ class SimpleServicesManager {
   var transport = "FIREBASE";
   var accessToken = "";
 
-  // Biến để theo dõi trạng thái khởi tạo
-  final ValueNotifier<InitializationStatus> _initializationStatus =
-      ValueNotifier(InitializationStatus.notStarted);
-
-  // Stream để lắng nghe thay đổi trạng thái
-  final StreamController<InitializationStatus> _statusController =
-      StreamController<InitializationStatus>.broadcast();
-
-  // Getter để lắng nghe trạng thái khởi tạo
-  ValueNotifier<InitializationStatus> get initializationStatus =>
-      _initializationStatus;
-
-  // Stream để lắng nghe thay đổi trạng thái
-  Stream<InitializationStatus> get statusStream => _statusController.stream;
-
-  // Getter để lấy trạng thái hiện tại
-  InitializationStatus get currentStatus => _initializationStatus.value;
-
-  // Check if user is ready
-  bool get isUserReady =>
-      _initializationStatus.value == InitializationStatus.completed;
-
-  void _updateStatus(InitializationStatus status) {
-    _initializationStatus.value = status;
-    _statusController.add(status);
-    logInfo("SimpleServicesManager status: ${status.name}");
-  }
-
-  Future<void> initialize() async {
+  Future<void> initialize({String namespace = "l7mobile"}) async {
     try {
-      _updateStatus(InitializationStatus.initializingPackageInfo);
+      this.namespace = namespace;
 
       // Initialization logic for SimpleServicesManager
       // This could include setting up services, configurations, etc.
       final packageInfo = await PackageInfo.fromPlatform();
       bundle = packageInfo.packageName;
       logInfo("Bundle ID: $bundle");
-
-      _updateStatus(InitializationStatus.initializingFirebaseAuth);
-
-      // Initialize Firebase Auth
-      _updateStatus(InitializationStatus.authenticatingUser);
-      UserCredential user = await FirebaseAuth.instance.signInAnonymously();
-
-      if (user.user == null) {
-        logError("Failed to sign in anonymously.");
-        _updateStatus(InitializationStatus.failed);
-        return;
-      }
-
-      logSuccess("Firebase Auth initialized successfully.");
-      logInfo(
-        "User ID: ${user.user?.uid ?? "Anonymous User id not available"}",
-      );
-
-      String firebaseUserId = user.user?.uid ?? '';
-      String token = await user.user?.getIdToken() ?? '';
-
-      _updateStatus(InitializationStatus.gettingAccessToken);
-
-      // Get access token
-      var request = AuthTokenRequest(
-        token: token,
-        tokenExpiry: kTokenExpiry,
-        options: OptionsModel.defaultOptions(),
-      );
-
-      try {
-        final tokenResponse = await AppRepository().authToken(request);
-        userId = firebaseUserId;
-        accessToken = tokenResponse.token?.accessToken ?? '';
-        logSuccess("Simple Tech Access Token: $accessToken");
-
-        _updateStatus(InitializationStatus.completed);
-      } catch (error) {
-        logError("Failed to get access token: $error");
-        _updateStatus(InitializationStatus.failed);
-      }
-    } catch (error) {
-      logError("Initialization failed: $error");
-      _updateStatus(InitializationStatus.failed);
+    } catch (e) {
+      logError("Failed to initialize SimpleServicesManager: $e");
     }
+  }
+
+  setLoginedUserId(String userId, String accessToken) {
+    this.userId = userId;
+    this.accessToken = accessToken;
+    logSuccess("User ID set to: $userId");
+    logSuccess("Access Token set to: $accessToken");
+  }
+
+  Future<UserTokenModel> authToken(String token) {
+    AuthTokenRequest request = AuthTokenRequest(
+      token: token,
+      tokenExpiry: kTokenExpiry,
+      options: OptionsModel.defaultOptions(),
+    );
+    return AppRepository().authToken(request);
+  }
+
+  Future<UserTokenModel> refreshToken(String token) {
+    RefreshTokenRequest request = RefreshTokenRequest(
+      refreshToken: token,
+      tokenExpiry: kTokenExpiry,
+      options: OptionsModel.defaultOptions(),
+    );
+    return AppRepository().refreshToken(request);
   }
 
   Future<ResponseModel> registerDeviceToken(String address) {
@@ -223,10 +168,7 @@ class SimpleServicesManager {
   }
 
   // Dispose resources
-  void dispose() {
-    _statusController.close();
-    _initializationStatus.dispose();
-  }
+  void dispose() {}
 
   //
 }
