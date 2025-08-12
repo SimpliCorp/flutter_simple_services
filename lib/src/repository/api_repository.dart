@@ -34,6 +34,10 @@ class AppRepository {
     return _apiClient.refeshAuthToken(request);
   }
 
+  Future<UserTokenModel> deleteAccount(String userId, OptionsRequest options) {
+    return _apiClient.deleteAccount(userId, options);
+  }
+
   // --> NOTIFICATION
 
   Future<ResponseModel> registerDeviceToken(

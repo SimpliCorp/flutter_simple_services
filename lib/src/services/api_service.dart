@@ -18,6 +18,12 @@ abstract class ApiService {
   @POST("auth/token")
   Future<UserTokenModel> refeshAuthToken(@Body() RefreshTokenRequest request);
 
+  @POST("/accounts/{userId}/delete")
+  Future<UserTokenModel> deleteAccount(
+    @Path() String userId,
+    @Body() OptionsRequest options,
+  );
+
   // Notification functions
   // Register device token
   @POST("/notify/{transport}/register")

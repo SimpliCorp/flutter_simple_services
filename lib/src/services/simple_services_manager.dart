@@ -59,6 +59,13 @@ class SimpleServicesManager {
     return AppRepository().authToken(request);
   }
 
+  Future<UserTokenModel> deleteAccount(String userId) {
+    return AppRepository().deleteAccount(
+      userId,
+      OptionsRequest(options: OptionsModel.defaultOptions()),
+    );
+  }
+
   Future<UserTokenModel> refreshToken(String token) {
     RefreshTokenRequest request = RefreshTokenRequest(
       refreshToken: token,
