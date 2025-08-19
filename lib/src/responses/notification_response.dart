@@ -9,30 +9,27 @@ String notificationResponseToJson(NotificationResponse data) =>
 class NotificationResponse {
   List<Notify>? notifies;
 
-  NotificationResponse({
-    this.notifies,
-  });
+  NotificationResponse({this.notifies});
 
-  NotificationResponse copyWith({
-    List<Notify>? notifies,
-  }) =>
-      NotificationResponse(
-        notifies: notifies ?? this.notifies,
-      );
+  NotificationResponse copyWith({List<Notify>? notifies}) =>
+      NotificationResponse(notifies: notifies ?? this.notifies);
 
   factory NotificationResponse.fromJson(Map<String, dynamic> json) =>
       NotificationResponse(
-        notifies: json["notifies"] == null
-            ? []
-            : List<Notify>.from(
-                json["notifies"]!.map((x) => Notify.fromJson(x))),
+        notifies:
+            json["notifies"] == null
+                ? []
+                : List<Notify>.from(
+                  json["notifies"]!.map((x) => Notify.fromJson(x)),
+                ),
       );
 
   Map<String, dynamic> toJson() => {
-        "notifies": notifies == null
+    "notifies":
+        notifies == null
             ? []
             : List<dynamic>.from(notifies!.map((x) => x.toJson())),
-      };
+  };
 }
 
 Notify notifyFromJson(String str) => Notify.fromJson(json.decode(str));
@@ -50,6 +47,7 @@ class Notify {
   final String? updatedAt;
   String? readAt;
   final String? deletedAt;
+  final NotifyOther? other;
 
   Notify({
     this.id,
@@ -63,33 +61,64 @@ class Notify {
     this.updatedAt,
     this.readAt,
     this.deletedAt,
+    this.other,
   });
 
   factory Notify.fromJson(Map<String, dynamic> json) => Notify(
-        id: json["id"],
-        refId: json["refId"],
-        category: json["category"],
-        title: json["title"],
-        body: json["body"],
-        content: json["content"],
-        uid: json["uid"],
-        createdAt: json["created_at"],
-        updatedAt: json["updated_at"],
-        readAt: json["read_at"],
-        deletedAt: json["deleted_at"],
-      );
+    id: json["id"],
+    refId: json["refId"],
+    category: json["category"],
+    title: json["title"],
+    body: json["body"],
+    content: json["content"],
+    uid: json["uid"],
+    createdAt: json["created_at"],
+    updatedAt: json["updated_at"],
+    readAt: json["read_at"],
+    deletedAt: json["deleted_at"],
+    other:
+        json["other"] is Map<String, dynamic>
+            ? NotifyOther.fromJson(json["other"])
+            : null,
+  );
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "refId": refId,
-        "category": category,
-        "title": title,
-        "body": body,
-        "content": content,
-        "uid": uid,
-        "created_at": createdAt,
-        "updated_at": updatedAt,
-        "read_at": readAt,
-        "deleted_at": deletedAt,
-      };
+    "id": id,
+    "refId": refId,
+    "category": category,
+    "title": title,
+    "body": body,
+    "content": content,
+    "uid": uid,
+    "created_at": createdAt,
+    "updated_at": updatedAt,
+    "read_at": readAt,
+    "deleted_at": deletedAt,
+    "other": other?.toJson(),
+  };
+}
+
+NotifyOther notifyOtherFromJson(String str) =>
+    NotifyOther.fromJson(json.decode(str));
+
+String notifyOtherToJson(NotifyOther data) => json.encode(data.toJson());
+
+class NotifyOther {
+  String? commentId;
+  String? postId;
+  String? type;
+
+  NotifyOther({this.commentId, this.postId, this.type});
+
+  factory NotifyOther.fromJson(Map<String, dynamic> json) => NotifyOther(
+    commentId: json["comment_id"],
+    postId: json["post_id"],
+    type: json["type"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "comment_id": commentId,
+    "post_id": postId,
+    "type": type,
+  };
 }
