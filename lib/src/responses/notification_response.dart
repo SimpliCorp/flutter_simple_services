@@ -47,7 +47,7 @@ class Notify {
   final String? updatedAt;
   String? readAt;
   final String? deletedAt;
-  final NotifyOther? other;
+  final NotifyMetaData? metaData;
 
   Notify({
     this.id,
@@ -61,7 +61,7 @@ class Notify {
     this.updatedAt,
     this.readAt,
     this.deletedAt,
-    this.other,
+    this.metaData,
   });
 
   factory Notify.fromJson(Map<String, dynamic> json) => Notify(
@@ -76,9 +76,9 @@ class Notify {
     updatedAt: json["updated_at"],
     readAt: json["read_at"],
     deletedAt: json["deleted_at"],
-    other:
-        json["other"] is Map<String, dynamic>
-            ? NotifyOther.fromJson(json["other"])
+    metaData:
+        json["metadata"] is Map<String, dynamic>
+            ? NotifyMetaData.fromJson(json["metadata"])
             : null,
   );
 
@@ -94,7 +94,32 @@ class Notify {
     "updated_at": updatedAt,
     "read_at": readAt,
     "deleted_at": deletedAt,
-    "other": other?.toJson(),
+    "metadata": metaData?.toJson(),
+  };
+}
+
+NotifyMetaData notifyMetaDataFromJson(String str) =>
+    NotifyMetaData.fromJson(json.decode(str));
+
+String notifyMetaDataToJson(NotifyMetaData data) => json.encode(data.toJson());
+
+class NotifyMetaData {
+  List<String> userIds;
+  NotifyOther? others;
+
+  NotifyMetaData({required this.userIds, required this.others});
+
+  factory NotifyMetaData.fromJson(Map<String, dynamic> json) => NotifyMetaData(
+    userIds: List<String>.from(json["user_ids"].map((x) => x)),
+    others:
+        json["others"] is Map<String, dynamic>
+            ? NotifyOther.fromJson(json["others"])
+            : null,
+  );
+
+  Map<String, dynamic> toJson() => {
+    "user_ids": List<dynamic>.from(userIds.map((x) => x)),
+    "others": others?.toJson(),
   };
 }
 
