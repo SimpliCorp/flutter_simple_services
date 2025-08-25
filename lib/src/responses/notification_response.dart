@@ -132,18 +132,21 @@ class NotifyOther {
   String? commentId;
   String? postId;
   String? type;
+  String? image;
 
-  NotifyOther({this.commentId, this.postId, this.type});
+  NotifyOther({this.commentId, this.postId, this.type, this.image});
 
   factory NotifyOther.fromJson(Map<String, dynamic> json) => NotifyOther(
     commentId: json["comment_id"],
     postId: json["post_id"],
     type: json["type"],
+    image: json["image"],
   );
 
   Map<String, dynamic> toJson() => {
     "comment_id": commentId,
     "post_id": postId,
     "type": type,
+    "image": image,
   };
 }
