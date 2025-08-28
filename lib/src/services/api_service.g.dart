@@ -150,6 +150,7 @@ class _ApiService implements ApiService {
     int offset,
     int limit,
     String namespace,
+    String bundle,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
@@ -157,6 +158,7 @@ class _ApiService implements ApiService {
       r'offset': offset,
       r'limit': limit,
       r'options.namespace': namespace,
+      r'options.bundle': bundle,
     };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
@@ -187,12 +189,14 @@ class _ApiService implements ApiService {
     int offset,
     int limit,
     String namespace,
+    String bundle,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
       r'offset': offset,
       r'limit': limit,
       r'options.namespace': namespace,
+      r'options.bundle': bundle,
     };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
@@ -302,9 +306,13 @@ class _ApiService implements ApiService {
   Future<SettingsNotifyResponse> getSettingsNotify(
     String userId,
     String namespace,
+    String bundle,
   ) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'options.namespace': namespace};
+    final queryParameters = <String, dynamic>{
+      r'options.namespace': namespace,
+      r'options.bundle': bundle,
+    };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<SettingsNotifyResponse>(

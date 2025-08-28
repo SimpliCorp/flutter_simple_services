@@ -86,7 +86,7 @@ class SimpleServicesManager {
   }
 
   Future<TopicResponse> getListTopics() {
-    return AppRepository().getListTopics(userId, 0, 99, namespace);
+    return AppRepository().getListTopics(userId, 0, 99, namespace, bundle);
   }
 
   Future<NotificationResponse> getListNotifications(int offset, int limit) {
@@ -95,6 +95,7 @@ class SimpleServicesManager {
       offset,
       limit,
       namespace,
+      bundle,
     );
   }
 
@@ -111,7 +112,7 @@ class SimpleServicesManager {
   }
 
   Future<SettingsNotifyResponse> getSettingsNotify() {
-    return AppRepository().getSettingsNotify(userId, namespace);
+    return AppRepository().getSettingsNotify(userId, namespace, bundle);
   }
 
   Future<ResponseModel> setSettingsNotify(bool enabled) {

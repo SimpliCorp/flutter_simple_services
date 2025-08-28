@@ -55,8 +55,9 @@ class AppRepository {
     int offset,
     int limit,
     String namespace,
+    String bundle,
   ) {
-    return _apiClient.getListTopics(userId, offset, limit, namespace);
+    return _apiClient.getListTopics(userId, offset, limit, namespace, bundle);
   }
 
   Future<NotificationResponse> getListNotifications(
@@ -64,8 +65,15 @@ class AppRepository {
     int offset,
     int limit,
     String namespace,
+    String bundle,
   ) {
-    return _apiClient.getListNotifications(userId, offset, limit, namespace);
+    return _apiClient.getListNotifications(
+      userId,
+      offset,
+      limit,
+      namespace,
+      bundle,
+    );
   }
 
   Future<NotificationResponse> readNotifications(List<String> ids) {
@@ -83,8 +91,9 @@ class AppRepository {
   Future<SettingsNotifyResponse> getSettingsNotify(
     String userId,
     String namespace,
+    String bundle,
   ) {
-    return _apiClient.getSettingsNotify(userId, namespace);
+    return _apiClient.getSettingsNotify(userId, namespace, bundle);
   }
 
   Future<ResponseModel> setSettingsNotify(

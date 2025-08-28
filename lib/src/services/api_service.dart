@@ -42,6 +42,7 @@ abstract class ApiService {
     @Query('offset') int offset,
     @Query('limit') int limit,
     @Query('options.namespace') String namespace,
+    @Query('options.bundle') String bundle,
   );
 
   // Get list notifications
@@ -51,6 +52,7 @@ abstract class ApiService {
     @Query('offset') int offset,
     @Query('limit') int limit,
     @Query('options.namespace') String namespace,
+    @Query('options.bundle') String bundle,
   );
 
   // Read notifications
@@ -71,6 +73,7 @@ abstract class ApiService {
   Future<SettingsNotifyResponse> getSettingsNotify(
     @Path('user_id') String userId,
     @Query('options.namespace') String namespace,
+    @Query('options.bundle') String bundle,
   );
 
   @PUT("/users/{user_id}/settings/notify")
