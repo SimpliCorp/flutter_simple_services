@@ -30,6 +30,11 @@ class DioClient {
           _logger.i('REQUEST[${options.method}] => PATH: ${options.path}');
           _logger.d('Request data: ${options.data}');
           _logger.d('Request headers: ${options.headers}');
+          if (SimpleServicesManager.instance.language.isNotEmpty) {
+            options.headers.addAll({
+              'Accept-Language': SimpleServicesManager.instance.language,
+            });
+          }
 
           // Add header token
           String token = SimpleServicesManager.instance.accessToken;

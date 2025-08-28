@@ -28,6 +28,7 @@ class SimpleServicesManager {
   var userId = "";
   var transport = "FIREBASE";
   var accessToken = "";
+  var language = "en-US";
 
   Future<void> initialize({String namespace = "l7mobile"}) async {
     try {
@@ -48,6 +49,11 @@ class SimpleServicesManager {
     this.accessToken = accessToken;
     logSuccess("User ID set to: $userId");
     logSuccess("Access Token set to: $accessToken");
+  }
+
+  setAppLanguage(String language) {
+    this.language = language;
+    logSuccess("App language set to: $language");
   }
 
   Future<UserTokenModel> authToken(String token) {
