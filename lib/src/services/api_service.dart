@@ -35,6 +35,15 @@ abstract class ApiService {
     @Field('os') String os,
   );
 
+  @POST("/notify/{transport}/deregister")
+  Future<ResponseModel> deregisterDeviceToken(
+    @Path('transport') String transport,
+    @Field('address') String address,
+    @Field('uid') String uid,
+    @Field('options') Map<String, dynamic> options,
+    @Field('os') String os,
+  );
+
   // Get list topics
   @GET("/notify/topics")
   Future<TopicResponse> getListTopics(

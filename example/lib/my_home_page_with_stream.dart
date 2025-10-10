@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:ffi';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:dio/dio.dart';
 import 'package:example/log.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_badge/flutter_native_badge.dart';
 import 'package:flutter_simple_services/flutter_simple_services.dart';

@@ -3,10 +3,7 @@ import 'dart:io';
 import 'package:flutter_simple_services/src/log.dart';
 import 'package:flutter_simple_services/src/models/models.dart';
 import 'package:flutter_simple_services/src/repository/api_repository.dart';
-import 'package:flutter_simple_services/src/requests/request_auth_token.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'dart:async';
 
 import '../requests/requests.dart';
@@ -83,6 +80,16 @@ class SimpleServicesManager {
 
   Future<ResponseModel> registerDeviceToken(String address) {
     return AppRepository().registerDeviceToken(
+      transport,
+      address,
+      userId,
+      OptionsModel.defaultOptions().toJson(),
+      Platform.isIOS ? "IOS" : "ANDROID",
+    );
+  }
+
+  Future<ResponseModel> deregisterDeviceToken(String address) {
+    return AppRepository().deregisterDeviceToken(
       transport,
       address,
       userId,

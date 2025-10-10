@@ -145,6 +145,44 @@ class _ApiService implements ApiService {
   }
 
   @override
+  Future<ResponseModel> deregisterDeviceToken(
+    String transport,
+    String address,
+    String uid,
+    Map<String, dynamic> options,
+    String os,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = {
+      'address': address,
+      'uid': uid,
+      'options': options,
+      'os': os,
+    };
+    final _options = _setStreamType<ResponseModel>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/notify/${transport}/deregister',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ResponseModel _value;
+    try {
+      _value = ResponseModel.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<TopicResponse> getListTopics(
     String userId,
     int offset,

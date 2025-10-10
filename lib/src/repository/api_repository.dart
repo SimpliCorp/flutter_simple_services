@@ -50,6 +50,22 @@ class AppRepository {
     return _apiClient.registerDeviceToken(transport, address, uid, options, os);
   }
 
+  Future<ResponseModel> deregisterDeviceToken(
+    String transport,
+    String address,
+    String uid,
+    Map<String, dynamic> options,
+    String os,
+  ) {
+    return _apiClient.deregisterDeviceToken(
+      transport,
+      address,
+      uid,
+      options,
+      os,
+    );
+  }
+
   Future<TopicResponse> getListTopics(
     String userId,
     int offset,
